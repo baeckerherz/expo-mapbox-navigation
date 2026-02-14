@@ -53,11 +53,13 @@ const withMapboxNavPodfile = (config) => {
     installer.pods_project.targets.each do |target|
       if target.name == 'ExpoMapboxNavigation'
         target.build_configurations.each do |config|
-          shared_products = '$(BUILT_PRODUCTS_DIR)/..'
+          spm_frameworks = '$(BUILT_PRODUCTS_DIR)/PackageFrameworks'
           config.build_settings['FRAMEWORK_SEARCH_PATHS'] ||= ['$(inherited)']
-          config.build_settings['FRAMEWORK_SEARCH_PATHS'] << shared_products
+          config.build_settings['FRAMEWORK_SEARCH_PATHS'] << spm_frameworks
           config.build_settings['SWIFT_INCLUDE_PATHS'] ||= ['$(inherited)']
-          config.build_settings['SWIFT_INCLUDE_PATHS'] << shared_products
+          config.build_settings['SWIFT_INCLUDE_PATHS'] << spm_frameworks
+          config.build_settings['OTHER_LDFLAGS'] ||= ['$(inherited)']
+          config.build_settings['OTHER_LDFLAGS'] << '-Wl,-rpath,@loader_path/../Frameworks'
         end
       end
       if target.name.start_with?('Mapbox') || target.name == 'Turf'
