@@ -35,6 +35,7 @@
     "android/",
     "plugin/build/",
     "plugin/src/",
+    "app.plugin.js",
     "expo-module.config.json",
     "README.md"
   ],
