@@ -771,6 +771,11 @@
     "@babel/helper-string-parser" "^7.27.1"
     "@babel/helper-validator-identifier" "^7.28.5"
 
+"@baeckerherz/expo-mapbox-navigation@^0.1.0":
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/@baeckerherz/expo-mapbox-navigation/-/expo-mapbox-navigation-0.1.0.tgz#0f3f10c6deec1c9ed9ad1ebd16d20cfc7f5c8f83"
+  integrity sha512-lAN6RkDz0aBtjAFq+35SG+F0nEVXJnKoDuEevNMZ5nXMJvSLqZAvyvMwQZJxqXGvjIq2dcXHIOiAqvE+/Hcj2Q==
+
 "@egjs/hammerjs@^2.0.17":
   version "2.0.17"
   resolved "https://registry.yarnpkg.com/@egjs/hammerjs/-/hammerjs-2.0.17.tgz#5dc02af75a6a06e4c2db0202cae38c9263895124"
@@ -2443,9 +2448,6 @@ expo-manifests@~1.0.10:
   dependencies:
     "@expo/config" "~12.0.11"
     expo-json-utils "~0.15.0"
-
-"expo-mapbox-nav-prototype@file:..":
-  version "0.1.0"
 
 expo-modules-autolinking@3.0.24:
   version "3.0.24"

@@ -13,7 +13,7 @@ const config: ExpoConfig = {
   },
   plugins: [
     [
-      require.resolve("../plugin/index.js"),
+      "@baeckerherz/expo-mapbox-navigation/plugin/build",
       {
         mapboxAccessToken: process.env.MAPBOX_PUBLIC_TOKEN || "YOUR_MAPBOX_PUBLIC_TOKEN",
         navigationSdkVersion: "3.5.0",

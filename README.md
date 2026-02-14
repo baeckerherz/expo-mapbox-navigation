@@ -1,6 +1,8 @@
 # @baeckerherz/expo-mapbox-navigation
 
-Expo module wrapping [Mapbox Navigation SDK v3](https://docs.mapbox.com/ios/navigation/guides/) for iOS and Android. A prototype for a clean, maintainable alternative to existing community wrappers.
+> **WARNING: This is a prototype and actively under development.** APIs may change without notice. Not recommended for production use yet. Contributions and feedback are welcome.
+
+Expo module wrapping [Mapbox Navigation SDK v3](https://docs.mapbox.com/ios/navigation/guides/) for iOS and Android. A clean, maintainable alternative to existing community wrappers.
 
 ## Why this exists
 
@@ -49,13 +51,31 @@ import { MapboxNavigation } from '@baeckerherz/expo-mapbox-navigation';
 
 ### Props
 
+#### Route
+
 | Prop | Type | Description |
 |------|------|-------------|
 | `coordinates` | `Array<{ latitude, longitude }>` | Route waypoints (min 2). First = origin, last = destination. |
-| `waypointIndices` | `number[]` | Which coordinates are full waypoints vs. via-points. |
-| `locale` | `string` | Language for voice guidance and UI. Default: device locale. |
-| `routeProfile` | `string` | Routing profile. Default: `"mapbox/driving-traffic"`. |
-| `mute` | `boolean` | Mute voice guidance. |
+| `waypointIndices` | `number[]` | Indices into `coordinates` treated as full waypoints (with arrival notification). Others are silent via-points. Must include first and last index. |
+| `routeProfile` | `string` | Mapbox routing profile. iOS: `"mapbox/driving-traffic"` (default), `"mapbox/driving"`, `"mapbox/walking"`, `"mapbox/cycling"`. Android: omit the `"mapbox/"` prefix. |
+
+#### Localization
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `locale` | `string` | BCP 47 language tag for voice guidance, maneuver instructions, and UI labels (e.g. `"de"`, `"en-US"`). Default: device locale. |
+| `mute` | `boolean` | Mute voice guidance. Default: `false`. |
+
+#### Appearance
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `mapStyle` | `string` | Custom Mapbox map style URL. Overrides the default navigation style. Example: `"mapbox://styles/mapbox/navigation-night-v1"`. |
+| `themeMode` | `"day" \| "night" \| "auto"` | Controls day/night map appearance. `"day"` (default): light map. `"night"`: dark 3D map. `"auto"`: switches based on time of day. |
+| `accentColor` | `string` | Primary accent color (hex). Applied to route line, floating buttons, and interactive elements. Example: `"#007AFF"`. |
+| `routeColor` | `string` | Route line color (hex). Overrides `accentColor` for the route line only. Example: `"#4264fb"`. |
+| `bannerBackgroundColor` | `string` | Instruction banner background color (hex). Example: `"#FFFFFF"` for light, `"#1A1A2E"` for dark. |
+| `bannerTextColor` | `string` | Instruction banner text color (hex). Example: `"#000000"`. |
 
 ### Events
 
@@ -169,6 +189,43 @@ npx expo install @baeckerherz/expo-mapbox-navigation
 
 ### Known risks
 
-- **SPM + CocoaPods coexistence**: Xcode may have trouble resolving both dependency managers. If this fails, fallback is to vendor `.xcframework` files (Approach A from the plan).
 - **Android NavigationView completeness**: The drop-in `NavigationView` in Android Nav SDK v3 may require additional configuration for full feature parity with iOS.
 - **Mapbox licensing**: The Navigation SDK requires a commercial Mapbox license for production use. This wrapper does not change that requirement.
+
+---
+
+## Contributors
+
+We're looking for **contributors and maintainers** to help shape this project. If you're interested in working on Expo native modules, Mapbox SDKs, or React Native tooling — we'd love to have you on board.
+
+Check out the [issues](https://github.com/baeckerherz/expo-mapbox-navigation/issues) or open a PR to get started.
+
+---
+
+## Sponsors
+
+This project is sponsored and maintained by the teams that use it in production.
+
+<table>
+  <tr>
+    <td align="center">
+      <a href="https://github.com/baeckerherz">
+        <img src="https://avatars.githubusercontent.com/u/261656164?s=200&v=4" width="100" alt="Bäckerherz" />
+        <br />
+        <strong>Bäckerherz</strong>
+      </a>
+      <br />
+      <em>Founding Sponsor</em>
+    </td>
+  </tr>
+</table>
+
+Bäckerherz builds and uses this module in their own apps. This project exists because of their investment in open-source tooling for the Expo ecosystem.
+
+**Become a sponsor** — help us keep this project maintained and growing. Reach out at [partner@baeckerherz.at](mailto:partner@baeckerherz.at).
+
+---
+
+## Need help building something?
+
+We build mobile apps, backend systems, and custom integrations using Expo, React Native, and more. If you need a team that ships — get in touch at [partner@baeckerherz.at](mailto:partner@baeckerherz.at).
