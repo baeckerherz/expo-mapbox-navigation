@@ -89,7 +89,19 @@ import { MapboxNavigation } from '@baeckerherz/expo-mapbox-navigation';
 | `onUserOffRoute` | — | User went off the planned route. |
 | `onError` | `{ message }` | Navigation error occurred. |
 
-## Installation (for consumers)
+## Prerequisites
+
+1. A [Mapbox account](https://account.mapbox.com/) with Navigation SDK access
+2. A public access token (`pk.xxx`) and a secret/download token (`sk.xxx`)
+3. For iOS: `~/.netrc` must contain Mapbox credentials for SPM package resolution:
+
+```
+machine api.mapbox.com
+  login mapbox
+  password sk.eyJ1...YOUR_SECRET_TOKEN
+```
+
+## Installation
 
 ```bash
 npx expo install @baeckerherz/expo-mapbox-navigation
@@ -114,15 +126,9 @@ npx expo prebuild --clean
 npx expo run:ios
 ```
 
-## Development
+## Contributing
 
-```bash
-cd @baeckerherz/expo-mapbox-navigation
-yarn install
-cd example && npx expo run:ios
-```
-
-## Project Structure
+### Project Structure
 
 ```
 src/            TypeScript API (component, types, exports)
@@ -132,41 +138,24 @@ plugin/         Expo config plugins (SPM injection, Gradle setup)
 example/        Test app
 ```
 
-## Prerequisites
-
-1. A [Mapbox account](https://account.mapbox.com/) with Navigation SDK access
-2. A public access token (`pk.xxx`) and a secret/download token (`sk.xxx`)
-3. For iOS: `~/.netrc` must contain Mapbox credentials for SPM package resolution:
-
-```
-machine api.mapbox.com
-  login mapbox
-  password sk.eyJ1...YOUR_SECRET_TOKEN
-```
-
-## How to test the example app
+### Local Development
 
 ```bash
-cd @baeckerherz/expo-mapbox-navigation/example
+git clone https://github.com/baeckerherz/expo-mapbox-navigation.git
+cd expo-mapbox-navigation
+yarn install
+```
+
+### Running the Example App
+
+```bash
+cd example
 yarn install
 npx expo prebuild --clean
 npx expo run:ios --device
 ```
 
 The example app navigates from your current location to Innsbruck Hauptbahnhof with German voice guidance.
-
-## Publishing to npm
-
-```bash
-npm login
-npm publish --access public
-```
-
-Consumers install with:
-
-```bash
-npx expo install @baeckerherz/expo-mapbox-navigation
-```
 
 ## Key differences from existing wrappers
 
