@@ -1,0 +1,52 @@
+{
+  "name": "@baeckerherz/expo-mapbox-navigation",
+  "version": "0.1.0",
+  "description": "Expo module wrapping Mapbox Navigation SDK v3 for iOS and Android",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "expo": {
+    "plugin": "./plugin/build/index.js"
+  },
+  "scripts": {
+    "build:plugin": "cd plugin && tsc",
+    "build": "tsc && yarn build:plugin",
+    "clean": "rm -rf build plugin/build",
+    "prepublishOnly": "yarn build:plugin",
+    "lint": "eslint src/"
+  },
+  "keywords": [
+    "expo",
+    "react-native",
+    "mapbox",
+    "navigation",
+    "turn-by-turn",
+    "driving",
+    "mapbox-navigation-sdk",
+    "mapbox-navigation-v3"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/baeckerherz/expo-mapbox-navigation"
+  },
+  "files": [
+    "src/",
+    "ios/",
+    "android/",
+    "plugin/build/",
+    "plugin/src/",
+    "expo-module.config.json",
+    "README.md"
+  ],
+  "peerDependencies": {
+    "expo": ">=51.0.0",
+    "react": ">=18.0.0",
+    "react-native": ">=0.74.0"
+  },
+  "devDependencies": {
+    "expo-modules-core": "^2.5.0",
+    "expo-module-scripts": "^3.5.2",
+    "typescript": "^5.0.0",
+    "@expo/config-plugins": "^8.0.0"
+  }
+}

@@ -1,0 +1,12 @@
+node_modules/
+build/
+!plugin/build/
+*.tsbuildinfo
+.expo/
+ios/Pods/
+android/.gradle/
+android/build/
+example/node_modules/
+example/.expo/
+example/ios/
+example/android/

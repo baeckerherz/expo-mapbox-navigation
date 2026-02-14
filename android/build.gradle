@@ -1,0 +1,74 @@
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply plugin: 'maven-publish'
+
+group = 'expo.modules.mapboxnavigation'
+version = '0.1.0'
+
+def expoModulesCorePlugin = new File(project(":expo-modules-core").projectDir.absolutePath, "ExpoModulesCorePlugin.gradle")
+if (expoModulesCorePlugin.exists()) {
+  apply from: expoModulesCorePlugin
+  applyKotlinExpoModulesCorePlugin()
+}
+
+buildscript {
+  def expoModulesCorePlugin = new File(project(":expo-modules-core").projectDir.absolutePath, "ExpoModulesCorePlugin.gradle")
+  if (expoModulesCorePlugin.exists()) {
+    apply from: expoModulesCorePlugin
+    applyKotlinExpoModulesCorePlugin()
+  }
+}
+
+android {
+  namespace "expo.modules.mapboxnavigation"
+
+  compileSdkVersion safeExtGet("compileSdkVersion", 34)
+
+  defaultConfig {
+    minSdkVersion safeExtGet("minSdkVersion", 23)
+    targetSdkVersion safeExtGet("targetSdkVersion", 34)
+  }
+
+  publishing {
+    singleVariant("release") {
+      withSourcesJar()
+    }
+  }
+
+  lintOptions {
+    abortOnError false
+  }
+
+  compileOptions {
+    sourceCompatibility JavaVersion.VERSION_17
+    targetCompatibility JavaVersion.VERSION_17
+  }
+
+  kotlinOptions {
+    jvmTarget = JavaVersion.VERSION_17.majorVersion
+  }
+}
+
+repositories {
+  mavenCentral()
+  maven {
+    url = uri("https://api.mapbox.com/downloads/v2/releases/maven")
+    authentication {
+      basic(BasicAuthentication)
+    }
+    credentials {
+      username = "mapbox"
+      password = project.findProperty('MAPBOX_DOWNLOADS_TOKEN') ?: System.getenv('MAPBOX_DOWNLOADS_TOKEN') ?: ""
+    }
+  }
+}
+
+dependencies {
+  implementation project(':expo-modules-core')
+  implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${getKotlinVersion()}"
+
+  // Mapbox Navigation SDK v3 - drop-in UI
+  implementation "com.mapbox.navigationcore:android:3.5.0"
+  implementation "com.mapbox.navigationcore:dropin:3.5.0"
+  implementation "com.mapbox.navigationcore:ui-maps:3.5.0"
+}
