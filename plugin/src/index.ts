@@ -48,8 +48,8 @@ const withMapboxNavigation: ConfigPlugin<PluginConfig> = (
   // iOS: Inject SPM package references
   config = withMapboxNavSPM(config, { navigationSdkVersion });
 
-  // iOS: Patch Podfile for SPM framework visibility
-  config = withMapboxNavPodfile(config);
+  // iOS: Patch Podfile so ExpoMapboxNavigation pod has Mapbox SPM dependency
+  config = withMapboxNavPodfile(config, { navigationSdkVersion });
 
   // Android: Mapbox Maven repository and optional token for SDK download
   config = withMapboxNavGradle(config);

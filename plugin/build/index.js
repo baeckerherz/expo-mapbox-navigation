@@ -28,8 +28,8 @@ const withMapboxNavigation = (config, { mapboxAccessToken, mapboxSecretToken, na
             "This app needs your location for turn-by-turn navigation, including in the background.";
     // iOS: Inject SPM package references
     config = (0, withMapboxNavSPM_1.withMapboxNavSPM)(config, { navigationSdkVersion });
-    // iOS: Patch Podfile for SPM framework visibility
-    config = (0, withMapboxNavPodfile_1.withMapboxNavPodfile)(config);
+    // iOS: Patch Podfile so ExpoMapboxNavigation pod has Mapbox SPM dependency
+    config = (0, withMapboxNavPodfile_1.withMapboxNavPodfile)(config, { navigationSdkVersion });
     // Android: Mapbox Maven repository and optional token for SDK download
     config = (0, withMapboxNavGradle_1.withMapboxNavGradle)(config);
     config = (0, withMapboxNavGradleProperties_1.withMapboxNavGradleProperties)(config, { mapboxSecretToken });
