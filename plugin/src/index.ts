@@ -2,6 +2,7 @@ import { ConfigPlugin, createRunOncePlugin } from "@expo/config-plugins";
 import { withMapboxNavSPM } from "./withMapboxNavSPM";
 import { withMapboxNavPodfile } from "./withMapboxNavPodfile";
 import { withMapboxNavGradle } from "./withMapboxNavGradle";
+import { withMapboxNavGradleProperties } from "./withMapboxNavGradleProperties";
 
 interface PluginConfig {
   /** Mapbox public access token (pk.xxx). Required for the native SDK. */
@@ -50,8 +51,9 @@ const withMapboxNavigation: ConfigPlugin<PluginConfig> = (
   // iOS: Patch Podfile for SPM framework visibility
   config = withMapboxNavPodfile(config);
 
-  // Android: Add Mapbox Maven repository
+  // Android: Mapbox Maven repository and optional token for SDK download
   config = withMapboxNavGradle(config);
+  config = withMapboxNavGradleProperties(config, { mapboxSecretToken });
 
   return config;
 };

@@ -15,7 +15,8 @@ const config: ExpoConfig = {
     [
       "@baeckerherz/expo-mapbox-navigation/plugin/build",
       {
-        mapboxAccessToken: process.env.MAPBOX_PUBLIC_TOKEN || "YOUR_MAPBOX_PUBLIC_TOKEN",
+        mapboxAccessToken: process.env.MAPBOX_PUBLIC_TOKEN ?? "",
+        mapboxSecretToken: process.env.MAPBOX_SECRET_TOKEN,
         navigationSdkVersion: "3.5.0",
       },
     ],

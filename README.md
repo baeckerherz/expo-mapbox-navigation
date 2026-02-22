@@ -1,35 +1,66 @@
 # @baeckerherz/expo-mapbox-navigation
 
-> **WARNING: This is a prototype and actively under development.** APIs may change without notice. Not recommended for production use yet. Contributions and feedback are welcome.
+[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 
-Expo module wrapping [Mapbox Navigation SDK v3](https://docs.mapbox.com/ios/navigation/guides/) for iOS and Android. A clean, maintainable alternative to existing community wrappers.
+Expo module wrapping [Mapbox Navigation SDK v3](https://docs.mapbox.com/ios/navigation/guides/) (iOS) / [Android](https://docs.mapbox.com/android/navigation/guides/) for turn-by-turn navigation on iOS and Android. A minimal, maintainable alternative to existing community wrappers.
 
-## Why this exists
+> **Warning:** This is a prototype under active development. APIs may change. Not recommended for production yet. Contributions and feedback are welcome.
 
-Existing React Native / Expo wrappers for Mapbox Navigation have significant issues:
+## Table of contents
 
-- **@badatgil/expo-mapbox-navigation**: Bundles vendored `.xcframework` files for iOS (fragile, requires manual rebuild for every Mapbox SDK update). Android assembles the navigation UI from ~30 individual components in ~1100 lines of Kotlin instead of using Mapbox's drop-in view.
-- **@homee/react-native-mapbox-navigation**: Abandoned (no activity since 2022), locked to Nav SDK v2.1.1, no Expo support, crashes on Android 13+.
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+- [Usage](#usage)
+- [API](#api)
+- [Architecture](#architecture)
+- [Why this exists](#why-this-exists)
+- [Comparison](#comparison)
+- [Status](#status)
+- [Contributing](#contributing)
+- [License](#license)
+- [Sponsors](#sponsors)
 
-## Architecture
+## Prerequisites
 
-### iOS: SPM via Config Plugin (not vendored xcframeworks)
+- [Mapbox account](https://account.mapbox.com/) with Navigation SDK access
+- **Public token** (`pk.xxx`) and **secret/download token** (`sk.xxx`)
+- **iOS:** Add Mapbox credentials to `~/.netrc` for SPM:
 
-Mapbox Navigation SDK v3 for iOS dropped CocoaPods and only supports Swift Package Manager. Since Expo uses CocoaPods, we use an **Expo config plugin** that injects SPM package references into the Xcode project's `.pbxproj` at prebuild time. Version bumps are a single string change -- no manual xcframework rebuilding.
+  ```plaintext
+  machine api.mapbox.com
+    login mapbox
+    password YOUR_SECRET_TOKEN
+  ```
 
-### Android: Drop-in NavigationView
+- **Android:** The plugin writes `mapboxSecretToken` to `android/gradle.properties` as `MAPBOX_DOWNLOADS_TOKEN` so Maven can download the SDK. Use the same plugin config as for iOS.
 
-Android Nav SDK v3 provides a `NavigationView` drop-in component. We wrap it directly instead of rebuilding the UI from scratch.
+## Installation
 
-### Both platforms: Expo Module API
+```bash
+npx expo install @baeckerherz/expo-mapbox-navigation
+```
 
-Uses `expo-modules-core` for native bridging, giving us:
-- Fabric / New Architecture compatibility
-- Type-safe props and events in Swift/Kotlin
-- Clean `EventDispatcher` pattern
-- Works in Expo and bare RN projects
+Add the plugin in `app.config.ts` (or `app.json`). Prefer environment variables for tokens so you don’t commit secrets:
 
-## API
+```ts
+plugins: [
+  ["@baeckerherz/expo-mapbox-navigation/plugin", {
+    mapboxAccessToken: process.env.MAPBOX_ACCESS_TOKEN,
+    mapboxSecretToken: process.env.MAPBOX_SECRET_TOKEN,
+    navigationSdkVersion: "3.5.0",
+  }],
+]
+```
+
+Rebuild native projects:
+
+```bash
+npx expo prebuild --clean
+npx expo run:ios
+npx expo run:android
+```
+
+## Usage
 
 ```tsx
 import { MapboxNavigation } from '@baeckerherz/expo-mapbox-navigation';
@@ -49,172 +80,118 @@ import { MapboxNavigation } from '@baeckerherz/expo-mapbox-navigation';
 />
 ```
 
+## API
+
 ### Props
 
-#### Route
+**Route**
 
 | Prop | Type | Description |
 |------|------|-------------|
 | `coordinates` | `Array<{ latitude, longitude }>` | Route waypoints (min 2). First = origin, last = destination. |
-| `waypointIndices` | `number[]` | Indices into `coordinates` treated as full waypoints (with arrival notification). Others are silent via-points. Must include first and last index. |
-| `routeProfile` | `string` | Mapbox routing profile. iOS: `"mapbox/driving-traffic"` (default), `"mapbox/driving"`, `"mapbox/walking"`, `"mapbox/cycling"`. Android: omit the `"mapbox/"` prefix. |
+| `waypointIndices` | `number[]` | Indices in `coordinates` that are full waypoints (with arrival notification). Others are via-points. Must include first and last. |
+| `routeProfile` | `string` | Routing profile. iOS: `"mapbox/driving-traffic"` (default), `"mapbox/driving"`, `"mapbox/walking"`, `"mapbox/cycling"`. Android: omit `"mapbox/"` prefix. |
 
-#### Localization
+**Localization**
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `locale` | `string` | BCP 47 language tag for voice guidance, maneuver instructions, and UI labels (e.g. `"de"`, `"en-US"`). Default: device locale. |
+| `locale` | `string` | BCP 47 language for voice and UI (e.g. `"de"`, `"en-US"`). Default: device locale. |
 | `mute` | `boolean` | Mute voice guidance. Default: `false`. |
 
-#### Appearance
+**Appearance**
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `mapStyle` | `string` | Custom Mapbox map style URL. Overrides the default navigation style. Example: `"mapbox://styles/mapbox/navigation-night-v1"`. |
-| `themeMode` | `"day" \| "night" \| "auto"` | Controls day/night map appearance. `"day"` (default): light map. `"night"`: dark 3D map. `"auto"`: switches based on time of day. |
-| `accentColor` | `string` | Primary accent color (hex). Applied to route line, floating buttons, and interactive elements. Example: `"#007AFF"`. |
-| `routeColor` | `string` | Route line color (hex). Overrides `accentColor` for the route line only. Example: `"#4264fb"`. |
-| `bannerBackgroundColor` | `string` | Instruction banner background color (hex). Example: `"#FFFFFF"` for light, `"#1A1A2E"` for dark. |
-| `bannerTextColor` | `string` | Instruction banner text color (hex). Example: `"#000000"`. |
+| `mapStyle` | `string` | Mapbox style URL. Example: `"mapbox://styles/mapbox/navigation-night-v1"`. |
+| `themeMode` | `"day" \| "night" \| "auto"` | Day (default), night, or auto by time. |
+| `accentColor` | `string` | Primary accent (hex). Example: `"#007AFF"`. |
+| `routeColor` | `string` | Route line color (hex). Overrides `accentColor` for the line. |
+| `bannerBackgroundColor` | `string` | Instruction banner background (hex). |
+| `bannerTextColor` | `string` | Instruction banner text (hex). |
 
 ### Events
 
 | Event | Payload | Description |
 |-------|---------|-------------|
-| `onRouteProgressChanged` | `{ distanceRemaining, durationRemaining, distanceTraveled, fractionTraveled }` | Fires as the user progresses along the route. |
-| `onCancelNavigation` | — | User tapped cancel / back. |
-| `onWaypointArrival` | `{ waypointIndex }` | Arrived at an intermediate waypoint. |
-| `onFinalDestinationArrival` | — | Arrived at the final destination. |
-| `onRouteChanged` | — | Route was recalculated (reroute). |
-| `onUserOffRoute` | — | User went off the planned route. |
-| `onError` | `{ message }` | Navigation error occurred. |
+| `onRouteProgressChanged` | `{ distanceRemaining, durationRemaining, distanceTraveled, fractionTraveled }` | Progress along the route. |
+| `onCancelNavigation` | — | User cancelled. |
+| `onWaypointArrival` | `{ waypointIndex }` | Reached an intermediate waypoint. |
+| `onFinalDestinationArrival` | — | Reached final destination. |
+| `onRouteChanged` | — | Route recalculated (reroute). |
+| `onUserOffRoute` | — | User left the route. |
+| `onError` | `{ message }` | Navigation error. |
 
-## Prerequisites
+## Architecture
 
-1. A [Mapbox account](https://account.mapbox.com/) with Navigation SDK access
-2. A public access token (`pk.xxx`) and a secret/download token (`sk.xxx`)
-3. For iOS: `~/.netrc` must contain Mapbox credentials for SPM package resolution:
+**iOS — SPM via config plugin**  
+Mapbox Navigation SDK v3 is SPM-only. The Expo config plugin injects SPM package references into the Xcode project at prebuild. Version bumps are a single string change; no vendored xcframeworks.
 
-```
-machine api.mapbox.com
-  login mapbox
-  password sk.eyJ1...YOUR_SECRET_TOKEN
-```
+**Android — Drop-in NavigationView**  
+We wrap the Nav SDK v3 `NavigationView` directly instead of rebuilding the UI.
 
-## Installation
+**Both — Expo Module API**  
+`expo-modules-core` for native bridging: Fabric/New Architecture, type-safe props and events, and compatibility with Expo and bare React Native.
 
-```bash
-npx expo install @baeckerherz/expo-mapbox-navigation
-```
+## Why this exists
 
-Add the plugin to `app.config.ts`:
+Existing wrappers have major drawbacks:
 
-```ts
-plugins: [
-  ["@baeckerherz/expo-mapbox-navigation/plugin", {
-    mapboxAccessToken: "pk.eyJ1...",
-    mapboxSecretToken: "sk.eyJ1...",  // for SPM download auth
-    navigationSdkVersion: "3.5.0",
-  }],
-]
-```
+- **@badatgil/expo-mapbox-navigation:** Vendored `.xcframework` on iOS (fragile; manual rebuild per SDK update). Android uses ~30 custom Kotlin components (~1100 LOC) instead of Mapbox’s drop-in view.
+- **@homee/react-native-mapbox-navigation:** Unmaintained (no activity since 2022), Nav SDK v2.1.1, no Expo, crashes on Android 13+.
 
-Rebuild native:
-
-```bash
-npx expo prebuild --clean
-npx expo run:ios
-```
-
-## Contributing
-
-### Project Structure
-
-```
-src/            TypeScript API (component, types, exports)
-ios/            Swift native module + podspec
-android/        Kotlin native module + build.gradle
-plugin/         Expo config plugins (SPM injection, Gradle setup)
-example/        Test app
-```
-
-### Local Development
-
-```bash
-git clone https://github.com/baeckerherz/expo-mapbox-navigation.git
-cd expo-mapbox-navigation
-yarn install
-```
-
-### Running the Example App
-
-```bash
-cd example
-yarn install
-npx expo prebuild --clean
-npx expo run:ios --device
-```
-
-The example app navigates from your current location to Innsbruck Hauptbahnhof with German voice guidance.
-
-## Key differences from existing wrappers
+## Comparison
 
 | | This module | @badatgil/expo-mapbox-navigation | @homee/react-native-mapbox-navigation |
 |---|---|---|---|
-| iOS SDK integration | SPM via config plugin (clean version bumps) | Vendored .xcframeworks (manual rebuild per update) | CocoaPods pinned to Nav SDK v2 |
-| Android approach | Drop-in NavigationView | Custom UI from ~30 components (~1100 LOC) | Custom UI (~500 LOC) |
-| Nav SDK version | v3 (current) | v3 | v2 (legacy) |
-| Expo Module API | Yes (Fabric-ready) | Yes | No (legacy bridge) |
-| Multi-waypoint | Yes | Yes | No (origin + destination only) |
+| iOS | SPM via config plugin | Vendored .xcframeworks | CocoaPods, Nav SDK v2 |
+| Android | Drop-in NavigationView | Custom UI (~1100 LOC) | Custom UI (~500 LOC) |
+| Nav SDK | v3 | v3 | v2 (legacy) |
+| Expo Module API | Yes (Fabric-ready) | Yes | No |
+| Multi-waypoint | Yes | Yes | No |
 | Maintenance | Active | Semi-active | Abandoned |
 
 ## Status
 
-**Prototype** — not production-ready. This is a proof of concept to validate:
+**Prototype** — not production-ready. Goals:
 
-1. SPM injection via config plugin works reliably with Xcode + CocoaPods
-2. Drop-in NavigationView/NavigationViewController integration is sufficient
-3. Event bridging covers the required use cases
+1. Reliable SPM injection with Xcode + CocoaPods
+2. Sufficient drop-in NavigationView/NavigationViewController integration
+3. Event bridging for required use cases
 
-### Known risks
+**Known risks**
 
-- **Android NavigationView completeness**: The drop-in `NavigationView` in Android Nav SDK v3 may require additional configuration for full feature parity with iOS.
-- **Mapbox licensing**: The Navigation SDK requires a commercial Mapbox license for production use. This wrapper does not change that requirement.
+- **Android:** Drop-in `NavigationView` may need more config for full parity with iOS.
+- **Licensing:** Mapbox Navigation SDK requires a commercial Mapbox license; this wrapper does not change that.
 
----
+## Contributing
 
-## Contributors
+We welcome contributors and maintainers. If you work on Expo native modules, Mapbox SDKs, or React Native tooling, we’d love your help.
 
-We're looking for **contributors and maintainers** to help shape this project. If you're interested in working on Expo native modules, Mapbox SDKs, or React Native tooling — we'd love to have you on board.
+**Project layout:** `src/` (TypeScript API), `ios/` (Swift + podspec), `android/` (Kotlin + build.gradle), `plugin/` (Expo config plugins), `example/` (test app).
 
-Check out the [issues](https://github.com/baeckerherz/expo-mapbox-navigation/issues) or open a PR to get started.
+**Run the example:**
 
----
+```bash
+git clone https://github.com/baeckerherz/expo-mapbox-navigation.git
+cd expo-mapbox-navigation && yarn install
+cd example && yarn install
+npx expo prebuild --clean
+npx expo run:ios --device   # or: npx expo run:android
+```
+
+The example navigates from your location to Innsbruck Hauptbahnhof with German voice guidance.
+
+Open an [issue](https://github.com/baeckerherz/expo-mapbox-navigation/issues) or submit a PR to get started.
+
+## License
+
+[MIT](./LICENSE)
 
 ## Sponsors
 
-This project is sponsored and maintained by the teams that use it in production.
+Sponsored and maintained by teams that use it in production.
 
-<table>
-  <tr>
-    <td align="center">
-      <a href="https://github.com/baeckerherz">
-        <img src="https://avatars.githubusercontent.com/u/261656164?s=200&v=4" width="100" alt="Bäckerherz" />
-        <br />
-        <strong>Bäckerherz</strong>
-      </a>
-      <br />
-      <em>Founding Sponsor</em>
-    </td>
-  </tr>
-</table>
+<a href="https://github.com/baeckerherz"><img src="https://avatars.githubusercontent.com/u/261656164?s=80&v=4" width="48" alt="Bäckerherz" /></a> **[Bäckerherz](https://github.com/baeckerherz)** — Founding sponsor. They build and use this module; the project exists thanks to their investment in open-source Expo tooling.
 
-Bäckerherz builds and uses this module in their own apps. This project exists because of their investment in open-source tooling for the Expo ecosystem.
-
-**Become a sponsor** — help us keep this project maintained and growing. Reach out at [partner@baeckerherz.at](mailto:partner@baeckerherz.at).
-
----
-
-## Need help building something?
-
-We build mobile apps, backend systems, and custom integrations using Expo, React Native, and more. If you need a team that ships — get in touch at [partner@baeckerherz.at](mailto:partner@baeckerherz.at).
+To support the project or work with us: [partner@baeckerherz.at](mailto:partner@baeckerherz.at).

@@ -4,6 +4,7 @@ const config_plugins_1 = require("@expo/config-plugins");
 const withMapboxNavSPM_1 = require("./withMapboxNavSPM");
 const withMapboxNavPodfile_1 = require("./withMapboxNavPodfile");
 const withMapboxNavGradle_1 = require("./withMapboxNavGradle");
+const withMapboxNavGradleProperties_1 = require("./withMapboxNavGradleProperties");
 const withMapboxNavigation = (config, { mapboxAccessToken, mapboxSecretToken, navigationSdkVersion = "3.5.0", }) => {
     if (!mapboxAccessToken) {
         throw new Error("[@baeckerherz/expo-mapbox-navigation] mapboxAccessToken is required.");
@@ -29,8 +30,9 @@ const withMapboxNavigation = (config, { mapboxAccessToken, mapboxSecretToken, na
     config = (0, withMapboxNavSPM_1.withMapboxNavSPM)(config, { navigationSdkVersion });
     // iOS: Patch Podfile for SPM framework visibility
     config = (0, withMapboxNavPodfile_1.withMapboxNavPodfile)(config);
-    // Android: Add Mapbox Maven repository
+    // Android: Mapbox Maven repository and optional token for SDK download
     config = (0, withMapboxNavGradle_1.withMapboxNavGradle)(config);
+    config = (0, withMapboxNavGradleProperties_1.withMapboxNavGradleProperties)(config, { mapboxSecretToken });
     return config;
 };
 exports.default = (0, config_plugins_1.createRunOncePlugin)(withMapboxNavigation, "@baeckerherz/expo-mapbox-navigation", "0.1.0");

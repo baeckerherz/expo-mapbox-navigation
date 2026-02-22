@@ -3,9 +3,16 @@ build/
 !plugin/build/
 *.tsbuildinfo
 .expo/
+.expo-credentials/
 ios/Pods/
 android/.gradle/
 android/build/
+
+# Never commit tokens or secrets
+.env
+.env.*
+!.env.example
+
 example/node_modules/
 example/.expo/
 example/ios/
