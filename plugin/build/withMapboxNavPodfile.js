@@ -96,17 +96,28 @@ const withMapboxNavPodfile = (config, { navigationSdkVersion }) => {
         end
       end
     end
-    # Xcode 17 bug: SPM binary xcframeworks sharing transitive deps cause
-    # duplicate .signature file copies during archive creation. Strip them.
+    # SPM binary xcframeworks are linked via OTHER_LDFLAGS but not embedded
+    # because the SPM product deps are on the pod target (static lib), not
+    # the app target. We add script phases to embed them and strip duplicate
+    # signatures (Xcode 17 bug).
     user_proj = installer.aggregate_targets.first&.user_project
     if user_proj
       app_target = user_proj.targets.first
-      phase_name = 'StripXCFrameworkSignatures'
-      unless app_target.shell_script_build_phases.any? { |p| p.name == phase_name }
-        phase = app_target.new_shell_script_build_phase(phase_name)
-        d = '$'
+      d = '$'
+      mapbox_fws = %w[MapboxCommon MapboxCoreMaps MapboxNavigationNative]
+
+      embed_name = 'EmbedMapboxFrameworks'
+      unless app_target.shell_script_build_phases.any? { |p| p.name == embed_name }
+        phase = app_target.new_shell_script_build_phase(embed_name)
+        phase.shell_script = "FRAMEWORKS_DIR=\\"#{d}{BUILT_PRODUCTS_DIR}/#{d}{FRAMEWORKS_FOLDER_PATH}\\"\\nmkdir -p \\"#{d}{FRAMEWORKS_DIR}\\"\\nfor fw in #{mapbox_fws.join(' ')}; do\\n  SRC=\\"#{d}{BUILT_PRODUCTS_DIR}/#{d}{fw}.framework\\"\\n  if [ -d \\"#{d}{SRC}\\" ]; then\\n    cp -R \\"#{d}{SRC}\\" \\"#{d}{FRAMEWORKS_DIR}/\\"\\n    codesign --force --sign \\"#{d}{EXPANDED_CODE_SIGN_IDENTITY}\\" \\"#{d}{FRAMEWORKS_DIR}/#{d}{fw}.framework\\"\\n  fi\\ndone\\n"
+      end
+
+      strip_name = 'StripXCFrameworkSignatures'
+      unless app_target.shell_script_build_phases.any? { |p| p.name == strip_name }
+        phase = app_target.new_shell_script_build_phase(strip_name)
         phase.shell_script = "DERIVED_ROOT=\\"#{d}{BUILD_DIR%/Build/*}\\"\\nfind \\"#{d}{DERIVED_ROOT}\\" -name \\"*.xcframework-*.signature\\" -delete 2>/dev/null\\nexit 0\\n"
       end
+
       user_proj.save
     end`;
             const escapedMarker = PLUGIN_MARKER.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
