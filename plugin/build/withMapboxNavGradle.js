@@ -15,11 +15,11 @@ const withMapboxNavGradle = (config) => {
         maven {
             url = uri("https://api.mapbox.com/downloads/v2/releases/maven")
             authentication {
-                create<BasicAuthentication>("basic")
+                basic(BasicAuthentication)
             }
             credentials {
                 username = "mapbox"
-                password = providers.gradleProperty("MAPBOX_DOWNLOADS_TOKEN").getOrElse("")
+                password = project.findProperty("MAPBOX_DOWNLOADS_TOKEN") ?: System.getenv("MAPBOX_DOWNLOADS_TOKEN") ?: ""
             }
         }`;
             contents = contents.replace(/allprojects\s*\{\s*repositories\s*\{/, `allprojects {\n    repositories {${mapboxMaven}`);

@@ -3,6 +3,8 @@ import { withProjectBuildGradle, ConfigPlugin } from "@expo/config-plugins";
 /**
  * Adds the authenticated Mapbox Maven repository to the Android
  * project's root build.gradle for Navigation SDK v3 downloads.
+ * Must be Groovy syntax (Expo's root build.gradle is Groovy, not Kotlin DSL).
+ * See: https://docs.mapbox.com/android/navigation/build-with-nav-sdk/installation/
  */
 export const withMapboxNavGradle: ConfigPlugin = (config) => {
   return withProjectBuildGradle(config, (config) => {
@@ -14,11 +16,11 @@ export const withMapboxNavGradle: ConfigPlugin = (config) => {
         maven {
             url = uri("https://api.mapbox.com/downloads/v2/releases/maven")
             authentication {
-                create<BasicAuthentication>("basic")
+                basic(BasicAuthentication)
             }
             credentials {
                 username = "mapbox"
-                password = providers.gradleProperty("MAPBOX_DOWNLOADS_TOKEN").getOrElse("")
+                password = project.findProperty("MAPBOX_DOWNLOADS_TOKEN") ?: System.getenv("MAPBOX_DOWNLOADS_TOKEN") ?: ""
             }
         }`;
 
