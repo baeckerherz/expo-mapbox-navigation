@@ -1,7 +1,7 @@
 {
   "name": "@baeckerherz/expo-mapbox-navigation",
-  "version": "1.0.2",
-  "description": "Expo module wrapping Mapbox Navigation SDK v3 for iOS and Android",
+  "version": "1.0.3",
+  "description": "Expo module for turn-by-turn navigation (Mapbox Navigation SDK v3) on iOS and Android. Alpha. Single MapboxNavigation component, Expo config plugin.",
   "main": "src/index.ts",
   "types": "src/index.ts",
   "expo": {
@@ -22,7 +22,13 @@
     "turn-by-turn",
     "driving",
     "mapbox-navigation-sdk",
-    "mapbox-navigation-v3"
+    "mapbox-navigation-v3",
+    "expo-module",
+    "alpha",
+    "mapbox-navigation",
+    "react-native-navigation",
+    "directions",
+    "routing"
   ],
   "license": "MIT",
   "repository": {

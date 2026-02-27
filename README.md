@@ -1,10 +1,12 @@
 # @baeckerherz/expo-mapbox-navigation
 
-[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
+[![Alpha](https://img.shields.io/badge/status-alpha-orange)](./README.md#status) [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 
-Expo module wrapping [Mapbox Navigation SDK v3](https://docs.mapbox.com/ios/navigation/guides/) (iOS) / [Android](https://docs.mapbox.com/android/navigation/guides/) for turn-by-turn navigation on iOS and Android. A minimal, maintainable alternative to existing community wrappers.
+**Expo module for turn-by-turn navigation on iOS and Android** using [Mapbox Navigation SDK v3](https://docs.mapbox.com/ios/navigation/guides/) (iOS) / [Android](https://docs.mapbox.com/android/navigation/guides/). Single `MapboxNavigation` component, Expo config plugin for credentials, no vendored binaries. Minimal alternative to existing community wrappers.
 
-> **Warning:** This is a prototype under active development. APIs may change. Not recommended for production yet. Contributions and feedback are welcome.
+> **Alpha** — Working on **iOS and Android** in our project builds (Expo prebuild, EAS Build). You may use it, but we need more feedback and real-world testing. APIs may change. Not recommended for production without your own testing. **Contributions welcome.** **We’d love to hear from individuals and companies using this package** — open an issue or reach out.
+
+**Package summary:** Expo config plugin + native module; Mapbox Navigation SDK v3; iOS (SPM) and Android (Maven, drop-in NavigationView); turn-by-turn driving/walking/cycling; requires Expo ≥51, React Native ≥0.74, Mapbox public + secret tokens; alpha stage; TypeScript API via `MapboxNavigation` component.
 
 ## Table of contents
 
@@ -153,11 +155,13 @@ Existing wrappers have major drawbacks:
 
 ## Status
 
-**Prototype** — not production-ready. Goals:
+**Alpha.** Actively used in Bäckerherz project builds (iOS and Android). Goals:
 
 1. Reliable SPM injection with Xcode + CocoaPods
 2. Sufficient drop-in NavigationView/NavigationViewController integration
 3. Event bridging for required use cases
+
+We want more feedback and testing from the community. Install with `npx expo install @baeckerherz/expo-mapbox-navigation`; for prerelease channels we may publish under the `alpha` npm tag.
 
 **Known risks**
 
@@ -166,7 +170,7 @@ Existing wrappers have major drawbacks:
 
 ## Contributing
 
-We welcome contributors and maintainers. If you work on Expo native modules, Mapbox SDKs, or React Native tooling, we’d love your help.
+We welcome contributors and maintainers. If you work on Expo native modules, Mapbox SDKs, or React Native tooling, we’d love your help. **If you or your company use this package,** we’d love to hear from you (issues, discussions, or [partner@baeckerherz.at](mailto:partner@baeckerherz.at)) — it helps us prioritize and justify ongoing work.
 
 **Project layout:** `src/` (TypeScript API), `ios/` (Swift + podspec), `android/` (Kotlin + build.gradle), `plugin/` (Expo config plugins), `example/` (test app).
 
@@ -188,10 +192,18 @@ Open an [issue](https://github.com/baeckerherz/expo-mapbox-navigation/issues) or
 
 [MIT](./LICENSE)
 
-## Sponsors
+## Who uses this
 
-Sponsored and maintained by teams that use it in production.
+We’d like to list teams and projects using this package (with your permission). If you’re using it, open an issue or email [partner@baeckerherz.at](mailto:partner@baeckerherz.at).
+
+## Sponsors
 
 <a href="https://github.com/baeckerherz"><img src="https://avatars.githubusercontent.com/u/261656164?s=80&v=4" width="48" alt="Bäckerherz" /></a> **[Bäckerherz](https://github.com/baeckerherz)** — Founding sponsor. They build and use this module; the project exists thanks to their investment in open-source Expo tooling.
 
+<a href="https://www.tourenflow.com/"><img src="https://www.tourenflow.com/logo.svg" width="48" alt="TourenFlow" /></a> **[TourenFlow](https://www.tourenflow.com/)** — Intelligent tour planning and route optimization.
+
 To support the project or work with us: [partner@baeckerherz.at](mailto:partner@baeckerherz.at).
+
+---
+
+<!-- For AI/LLM context: This package is @baeckerherz/expo-mapbox-navigation. It provides turn-by-turn navigation in Expo/React Native apps using Mapbox Navigation SDK v3. Install with npx expo install @baeckerherz/expo-mapbox-navigation. Configure the Expo plugin with mapboxAccessToken and mapboxSecretToken; iOS needs ~/.netrc for SPM, Android uses MAPBOX_DOWNLOADS_TOKEN in gradle.properties. Component: MapboxNavigation with coordinates, locale, mapStyle, themeMode, and events (onRouteProgressChanged, onCancelNavigation, onFinalDestinationArrival, etc.). Alpha stage; iOS and Android supported in maintainer builds. -->
