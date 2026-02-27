@@ -4,7 +4,7 @@
 
 **Expo module for turn-by-turn navigation on iOS and Android** using [Mapbox Navigation SDK v3](https://docs.mapbox.com/ios/navigation/guides/) (iOS) / [Android](https://docs.mapbox.com/android/navigation/guides/). Single `MapboxNavigation` component, Expo config plugin for credentials, no vendored binaries. Minimal alternative to existing community wrappers.
 
-> **Alpha** — Working on **iOS and Android** in our project builds (Expo prebuild, EAS Build). You may use it, but we need more feedback and real-world testing. APIs may change. Not recommended for production without your own testing. **Contributions welcome.** **We’d love to hear from individuals and companies using this package** — open an issue or reach out.
+> **Alpha** — iOS is working in our builds; Android is not yet working (dependency resolution / Mapbox Maven). We need help to get Android over the line. APIs may change. **Contributions welcome.** Open an issue or reach out.
 
 **Package summary:** Expo config plugin + native module; Mapbox Navigation SDK v3; iOS (SPM) and Android (Maven, drop-in NavigationView); turn-by-turn driving/walking/cycling; requires Expo ≥51, React Native ≥0.74, Mapbox public + secret tokens; alpha stage; TypeScript API via `MapboxNavigation` component.
 
@@ -25,8 +25,17 @@
 ## Prerequisites
 
 - [Mapbox account](https://account.mapbox.com/) with Navigation SDK access
-- **Public token** (`pk.xxx`) and **secret/download token** (`sk.xxx`)
-- **iOS:** Add Mapbox credentials to `~/.netrc` for SPM:
+
+Mapbox requires **two tokens** (create both in your [Mapbox tokens page](https://account.mapbox.com/access-tokens/)):
+
+| Token | Prefix | Purpose |
+|-------|--------|---------|
+| **Public (access) token** | `pk.xxx` | Used by the app at runtime: map tiles, Directions API, voice, etc. Set as `mapboxAccessToken` in the plugin. |
+| **Secret (downloads) token** | `sk.xxx` | Used only at **build time**: Gradle (Android) and SPM (iOS) use it to download the Navigation SDK from Mapbox. Must have **Downloads:Read** scope. Not used by the app at runtime. |
+
+The same **secret token** is used for both platforms. For EAS Build, one EAS secret (e.g. `MAPBOX_DOWNLOADS_TOKEN` or `MAPBOX_SECRET_TOKEN`) can back both: iOS needs it in `~/.netrc` for SPM; Android needs it in `gradle.properties` (the plugin writes it from `mapboxSecretToken`) and, when using centralized repo resolution, as env var `MAPBOX_DOWNLOADS_TOKEN`.
+
+- **iOS:** Add the secret token to `~/.netrc` so SPM can download the SDK (local dev and EAS Build):
 
   ```plaintext
   machine api.mapbox.com
@@ -34,7 +43,7 @@
     password YOUR_SECRET_TOKEN
   ```
 
-- **Android:** The plugin writes `mapboxSecretToken` to `android/gradle.properties` as `MAPBOX_DOWNLOADS_TOKEN` so Maven can download the SDK. Use the same plugin config as for iOS.
+- **Android:** The plugin writes `mapboxSecretToken` to `android/gradle.properties` as `MAPBOX_DOWNLOADS_TOKEN` so Maven can download the SDK. For EAS Build, also set `MAPBOX_DOWNLOADS_TOKEN` as an EAS secret so the build can authenticate.
 
 ## Installation
 
@@ -155,17 +164,20 @@ Existing wrappers have major drawbacks:
 
 ## Status
 
-**Alpha.** Actively used in Bäckerherz project builds (iOS and Android). Goals:
+**Alpha.** Platform status:
 
-1. Reliable SPM injection with Xcode + CocoaPods
-2. Sufficient drop-in NavigationView/NavigationViewController integration
-3. Event bridging for required use cases
+| Platform | Status | Notes |
+|----------|--------|-------|
+| **iOS** | Working (Alpha) | SPM via config plugin; tested in our project builds. |
+| **Android** | Not yet working | Mapbox Maven / dependency resolution issues; help wanted to fix. |
 
-We want more feedback and testing from the community. Install with `npx expo install @baeckerherz/expo-mapbox-navigation`; for prerelease channels we may publish under the `alpha` npm tag.
+Goals: reliable SPM injection (iOS), drop-in NavigationView/NavigationViewController, event bridging. We want more feedback and testing. For prerelease we may publish under the `alpha` npm tag.
+
+**Help wanted** — especially to get Android builds working (Gradle, Mapbox repo auth, or switching to `ui-components` if the drop-in artifact is unavailable).
 
 **Known risks**
 
-- **Android:** Drop-in `NavigationView` may need more config for full parity with iOS.
+- **Android:** Build and dependency resolution need community input.
 - **Licensing:** Mapbox Navigation SDK requires a commercial Mapbox license; this wrapper does not change that.
 
 ## Contributing

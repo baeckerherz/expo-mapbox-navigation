@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const config_plugins_1 = require("@expo/config-plugins");
 const withMapboxNavPodfile_1 = require("./withMapboxNavPodfile");
 const withMapboxNavGradle_1 = require("./withMapboxNavGradle");
+const withMapboxNavSettingsGradle_1 = require("./withMapboxNavSettingsGradle");
 const withMapboxNavGradleProperties_1 = require("./withMapboxNavGradleProperties");
 const withMapboxNavigation = (config, { mapboxAccessToken, mapboxSecretToken, navigationSdkVersion = "3.5.0", }) => {
     if (!mapboxAccessToken) {
@@ -27,8 +28,9 @@ const withMapboxNavigation = (config, { mapboxAccessToken, mapboxSecretToken, na
     // iOS: Adds Mapbox Navigation SPM to the Pods project, sets search paths,
     // and adds a script phase to strip duplicate xcframework signatures.
     config = (0, withMapboxNavPodfile_1.withMapboxNavPodfile)(config, { navigationSdkVersion });
-    // Android: Mapbox Maven repository and optional token for SDK download
+    // Android: Mapbox Maven repository (build.gradle and settings.gradle) and optional token
     config = (0, withMapboxNavGradle_1.withMapboxNavGradle)(config);
+    config = (0, withMapboxNavSettingsGradle_1.withMapboxNavSettingsGradle)(config);
     config = (0, withMapboxNavGradleProperties_1.withMapboxNavGradleProperties)(config, { mapboxSecretToken });
     return config;
 };

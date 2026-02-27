@@ -1,6 +1,7 @@
 import { ConfigPlugin, createRunOncePlugin } from "@expo/config-plugins";
 import { withMapboxNavPodfile } from "./withMapboxNavPodfile";
 import { withMapboxNavGradle } from "./withMapboxNavGradle";
+import { withMapboxNavSettingsGradle } from "./withMapboxNavSettingsGradle";
 import { withMapboxNavGradleProperties } from "./withMapboxNavGradleProperties";
 
 interface PluginConfig {
@@ -47,8 +48,9 @@ const withMapboxNavigation: ConfigPlugin<PluginConfig> = (
   // and adds a script phase to strip duplicate xcframework signatures.
   config = withMapboxNavPodfile(config, { navigationSdkVersion });
 
-  // Android: Mapbox Maven repository and optional token for SDK download
+  // Android: Mapbox Maven repository (build.gradle and settings.gradle) and optional token
   config = withMapboxNavGradle(config);
+  config = withMapboxNavSettingsGradle(config);
   config = withMapboxNavGradleProperties(config, { mapboxSecretToken });
 
   return config;

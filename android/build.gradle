@@ -74,7 +74,7 @@ dependencies {
   implementation project(':expo-modules-core')
   implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${kotlinVersion}"
 
-  // Mapbox Navigation SDK v3 - drop-in UI
+  // Mapbox Navigation SDK v3 - core, drop-in UI, and maps
   implementation "com.mapbox.navigationcore:android:3.5.0"
   implementation "com.mapbox.navigationcore:dropin:3.5.0"
   implementation "com.mapbox.navigationcore:ui-maps:3.5.0"
