@@ -143,6 +143,7 @@ class ExpoMapboxNavigationView: ExpoView {
 
   // MARK: Navigation state
 
+  private var navigationProvider: MapboxNavigationProvider?
   private var navigationViewController: NavigationViewController?
   private var hasStartedNavigation = false
 
@@ -189,6 +190,7 @@ class ExpoMapboxNavigationView: ExpoView {
     navigationViewController?.removeFromParent()
     navigationViewController = nil
     hasStartedNavigation = false
+    // Keep navigationProvider so we reuse the same core when starting the next route
   }
 
   // MARK: Layout
@@ -274,12 +276,15 @@ class ExpoMapboxNavigationView: ExpoView {
       routeOptions.profileIdentifier = MapboxDirections.ProfileIdentifier(rawValue: profile)
     }
 
-    // Core config
+    // Core config – reuse existing provider to avoid "two simultaneous active navigation cores"
     var coreConfig = CoreConfig()
     coreConfig.locale = resolvedLocale
     coreConfig.unitOfMeasurement = useMetric ? .metric : .imperial
 
-    let provider = MapboxNavigationProvider(coreConfig: coreConfig)
+    if navigationProvider == nil {
+      navigationProvider = MapboxNavigationProvider(coreConfig: coreConfig)
+    }
+    guard let provider = navigationProvider else { return }
     let mapboxNavigation = provider.mapboxNavigation
 
     Task { @MainActor in
@@ -335,6 +340,7 @@ class ExpoMapboxNavigationView: ExpoView {
 
   deinit {
     removeCurrentNavigation()
+    navigationProvider = nil
   }
 }
 
