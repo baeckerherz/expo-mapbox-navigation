@@ -11,8 +11,12 @@
     "build:plugin": "cd plugin && tsc",
     "build": "tsc && yarn build:plugin",
     "clean": "rm -rf build plugin/build",
-    "prepublishOnly": "yarn build:plugin",
-    "lint": "eslint src/"
+    "prepublishOnly": "yarn check",
+    "lint": "eslint src/",
+    "check": "yarn build:plugin && node scripts/check-release.mjs",
+    "check:full": "yarn lint && yarn check",
+    "preversion": "yarn check",
+    "test:integration": "node scripts/integration.mjs"
   },
   "keywords": [
     "expo",

@@ -18,6 +18,7 @@
 - [Why this exists](#why-this-exists)
 - [Comparison](#comparison)
 - [Status](#status)
+- [Integration testing](#integration-testing)
 - [Contributing](#contributing)
 - [License](#license)
 - [Sponsors](#sponsors)
@@ -44,6 +45,8 @@ The same **secret token** is used for both platforms. For EAS Build, one EAS sec
   ```
 
 - **Android:** The plugin writes `mapboxSecretToken` to `android/gradle.properties` as `MAPBOX_DOWNLOADS_TOKEN` so Maven can download the SDK. For EAS Build, also set `MAPBOX_DOWNLOADS_TOKEN` as an EAS secret so the build can authenticate.
+
+- **Android (local builds):** Gradle must run on **JVM 17 or greater**. If you see “Executing Gradle on JVM versions 16 and lower has been deprecated”, set `JAVA_HOME` to a JDK 17+ installation (e.g. `export JAVA_HOME=$(/usr/libexec/java_home -v 17)` on macOS).
 
 ## Installation
 
@@ -179,6 +182,32 @@ Goals: reliable SPM injection (iOS), drop-in NavigationView/NavigationViewContro
 
 - **Android:** Build and dependency resolution need community input.
 - **Licensing:** Mapbox Navigation SDK requires a commercial Mapbox license; this wrapper does not change that.
+
+## Integration testing
+
+Use this flow to **validate your changes** before releasing: run the full integration from the repo root. It builds the example app with the local package, runs release checks, builds Android and iOS (with JVM 17+ for Gradle), and optionally runs Maestro E2E.
+
+```bash
+# Set Mapbox tokens so prebuild can fetch the SDK
+export MAPBOX_PUBLIC_TOKEN="pk.xxx"
+export MAPBOX_SECRET_TOKEN="sk.xxx"   # or MAPBOX_DOWNLOADS_TOKEN for Android
+
+yarn test:integration              # build both Android and iOS, then E2E
+yarn test:integration --ios       # build only iOS, then E2E
+yarn test:integration --android   # build only Android, then E2E
+yarn test:integration --e2e-only  # skip build; run only Maestro E2E (app must already be on simulator)
+```
+
+The integration script:
+
+1. Runs **release checks** (plugin build + static native checks for single provider / route clear).
+2. **Links the local package** in `example/` and installs dependencies.
+3. **Prebuilds** the example app (generates `ios/` and `android/`).
+4. **Builds Android** (`./gradlew assembleDebug`).
+5. **Builds iOS** (`xcodebuild` for Simulator).
+6. If **Maestro** is available, boots an iOS simulator (if none is running), installs/launches the example app, then runs the E2E flow (start navigation → tap “Next stop” to test route refresh).
+
+The script installs Maestro and Java 17 if missing. For E2E it starts the simulator and the app automatically. The example app includes a “Next stop” button that changes the route coordinates; the Maestro flow verifies this doesn’t crash (single provider on iOS, clear+callback on Android). To run only E2E (app must already be installed): `yarn test:integration --e2e-only`.
 
 ## Contributing
 

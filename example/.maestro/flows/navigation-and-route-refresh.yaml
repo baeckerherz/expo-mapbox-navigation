@@ -1,0 +1,20 @@
+# Integration flow: start navigation, then trigger route refresh (next stop).
+# Verifies the native module handles coordinate changes without crash.
+# Run from repo root: yarn test:integration (or from example: maestro test .maestro)
+appId: com.example.mapboxnav
+---
+- launchApp
+- tapOn:
+    id: "start-navigation"
+- extendedWaitUntil:
+    visible:
+      id: "next-stop"
+    timeout: 30000
+- tapOn:
+    id: "next-stop"
+- extendedWaitUntil:
+    visible:
+      id: "next-stop"
+    timeout: 5000
+- assertVisible:
+    id: "next-stop"
