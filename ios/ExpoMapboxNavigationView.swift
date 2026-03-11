@@ -156,13 +156,39 @@ class ExpoMapboxNavigationView: ExpoView {
   // MARK: Props
 
   func setCoordinates(_ raw: [[String: Double]]) {
-    coordinates = raw.compactMap { dict in
+    let newCoords = raw.compactMap { dict -> CLLocationCoordinate2D? in
       guard let lat = dict["latitude"], let lng = dict["longitude"] else {
         return nil
       }
       return CLLocationCoordinate2D(latitude: lat, longitude: lng)
     }
-    startNavigationIfReady()
+    let isRouteChange = hasStartedNavigation && coordinatesDiffer(from: newCoords)
+    if isRouteChange {
+      removeCurrentNavigation()
+    }
+    coordinates = newCoords
+    if isRouteChange {
+      DispatchQueue.main.async { [weak self] in
+        self?.startNavigationIfReady()
+      }
+    } else {
+      startNavigationIfReady()
+    }
+  }
+
+  private func coordinatesDiffer(from newCoords: [CLLocationCoordinate2D]) -> Bool {
+    guard coordinates.count == newCoords.count else { return true }
+    return zip(coordinates, newCoords).contains { a, b in
+      a.latitude != b.latitude || a.longitude != b.longitude
+    }
+  }
+
+  private func removeCurrentNavigation() {
+    navigationViewController?.willMove(toParent: nil)
+    navigationViewController?.view.removeFromSuperview()
+    navigationViewController?.removeFromParent()
+    navigationViewController = nil
+    hasStartedNavigation = false
   }
 
   // MARK: Layout
@@ -308,9 +334,7 @@ class ExpoMapboxNavigationView: ExpoView {
   // MARK: Cleanup
 
   deinit {
-    navigationViewController?.willMove(toParent: nil)
-    navigationViewController?.view.removeFromSuperview()
-    navigationViewController?.removeFromParent()
+    removeCurrentNavigation()
   }
 }
 

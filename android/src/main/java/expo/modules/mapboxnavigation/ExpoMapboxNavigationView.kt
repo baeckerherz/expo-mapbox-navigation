@@ -13,6 +13,7 @@ import com.mapbox.navigation.core.trip.session.RouteProgressObserver
 import com.mapbox.navigation.core.trip.session.OffRouteObserver
 import com.mapbox.navigation.core.directions.session.RoutesObserver
 import com.mapbox.navigation.dropin.NavigationView
+import com.mapbox.navigation.core.directions.session.RoutesSetCallback
 import com.mapbox.api.directions.v5.DirectionsCriteria
 import com.mapbox.api.directions.v5.models.RouteOptions
 
@@ -45,12 +46,40 @@ class ExpoMapboxNavigationView(
   private var hasStartedNavigation = false
 
   fun setCoordinates(raw: List<Map<String, Double>>) {
-    coordinates = raw.mapNotNull { map ->
+    val newCoords = raw.mapNotNull { map ->
       val lat = map["latitude"] ?: return@mapNotNull null
       val lng = map["longitude"] ?: return@mapNotNull null
       Point.fromLngLat(lng, lat)
     }
-    startNavigationIfReady()
+    val isRouteChange = hasStartedNavigation && coordinatesChanged(newCoords)
+    if (isRouteChange) {
+      removeCurrentNavigationView { startNavigationIfReady() }
+    }
+    coordinates = newCoords
+    if (!isRouteChange) {
+      startNavigationIfReady()
+    }
+  }
+
+  private fun coordinatesChanged(newCoords: List<Point>): Boolean {
+    if (coordinates.size != newCoords.size) return true
+    return coordinates.zip(newCoords).any { (a, b) ->
+      a.latitude() != b.latitude() || a.longitude() != b.longitude()
+    }
+  }
+
+  private fun removeCurrentNavigationView(onCleared: (() -> Unit)? = null) {
+    navigationView?.let { removeView(it) }
+    navigationView = null
+    hasStartedNavigation = false
+    val nav = MapboxNavigationApp.current()
+    if (nav != null) {
+      nav.setNavigationRoutes(emptyList(), 0, RoutesSetCallback { _ ->
+        post { onCleared?.invoke() }
+      })
+    } else {
+      post { onCleared?.invoke() }
+    }
   }
 
   private fun startNavigationIfReady() {
@@ -158,7 +187,6 @@ class ExpoMapboxNavigationView(
 
   override fun onDetachedFromWindow() {
     super.onDetachedFromWindow()
-    navigationView?.let { removeView(it) }
-    navigationView = null
+    removeCurrentNavigationView()
   }
 }
